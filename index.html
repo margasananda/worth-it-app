@@ -12,11 +12,11 @@ button,.buy{border:0;background:linear-gradient(105deg,#a65b91,#9769aa 50%,#75a6
 .muted{color:#8b7585;font-size:13px;line-height:1.65}.result{background:linear-gradient(140deg,#fffaf5,#fff9fe 72%,#f4faf0);border:1px solid #ead4dd;border-radius:20px;padding:17px;margin-top:13px;box-shadow:0 3px 14px #a47b7210}.rank{font-size:14px;font-weight:900;color:#b18035}.name{font-size:17px;font-weight:800;margin:8px 0 12px;color:#59405b}.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px}.stats div{background:#f7eaf1;border-radius:12px;padding:11px}.stats div:nth-child(2n){background:#eef5e8}.stats div:last-child:nth-child(odd){grid-column:1/-1;background:#eef5e8}.stats small{font-size:11px;color:#876b83;display:block;margin-bottom:5px}.stats strong{font-size:17px;color:#62425b}.buy{display:block;margin-top:12px}
 .promo{border:1px solid #e9c77e;background:linear-gradient(100deg,#fff6d9,#ffeced);border-radius:14px;padding:12px;margin-top:12px}.promo-title{font-weight:850;color:#945b37}.promo-detail{font-size:13px;color:#806453;line-height:1.5;margin-top:4px}.promo-link{display:block;margin-top:10px;background:#ad7949;color:white;text-align:center;text-decoration:none;padding:11px;border-radius:11px;font-weight:800}
 #status{margin-top:14px}.buy:focus-visible{outline:3px solid #d7a34b;outline-offset:2px}.tip{background:#f5edf8;border:1px solid #e4d2e8;border-radius:12px;padding:10px 12px;margin-top:12px}.reset{background:#fff;color:#785670;border:1px solid #dfcdd9;padding:9px 14px;font-size:13px;width:auto;margin-top:10px;box-shadow:none}.result{overflow-wrap:anywhere}.hidden{display:none}a{color:#975b82}footer{text-align:center;font-size:12px;color:#8c7682;margin-top:22px}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #d7a34b;outline-offset:2px}
-</style></head><body><header><h1>Worth It? ✦</h1><p>暖心好評 Top 6｜最低價與限時優惠</p></header><main><section class="panel"><h2>想比較什麼？</h2><label for="q">商品</label><input id="q" value="腳底按摩器"><label for="budget">預算（NT$）</label><input id="budget" type="number" min="1" value="5000" inputmode="numeric"><button id="go">搜尋好評前 6 名</button><p id="status" class="muted" role="status">依公開商品評分與評論數排序，並提供參考價格與優惠連結。</p></section><section class="panel"><h2>🏆 好評 Top 6・優惠購買</h2><div id="results" class="muted">尚未搜尋。</div><p id="restore-note" class="muted hidden">已恢復上一次搜尋結果。價格可能已變動，可按「搜尋好評前 6 名」重新查詢。</p><p class="muted">排名依公開平台彙總評價初步排序，並非實機測試。特價僅在搜尋結果提供可核對的原價、特價或折扣標示時顯示；活動仍以商店結帳頁為準。</p></section><footer>Worth It? V4.2 · 購買前請再次確認商家售價、規格、運費與保固</footer></main><script>
+.shop-links{margin-top:12px}.shop-links button{margin-top:0}.external-shop{display:block;margin-top:10px;text-align:center;padding:10px;color:#805f78;text-decoration:underline;font-size:13px}.shop-links input{margin-top:8px;font-size:12px} </style></head><body><header><h1>Worth It? ✦</h1><p>暖心好評 Top 6｜最低價與限時優惠</p></header><main><section class="panel"><h2>想比較什麼？</h2><label for="q">商品</label><input id="q" value="腳底按摩器"><label for="budget">預算（NT$）</label><input id="budget" type="number" min="1" value="5000" inputmode="numeric"><button id="go">搜尋好評前 6 名</button><p id="status" class="muted" role="status">依相關性、公開評價與評論數排名；不混入不相關商品。</p></section><section class="panel"><h2>🏆 好評 Top 6・優惠購買</h2><div id="results" class="muted">尚未搜尋。</div><p id="restore-note" class="muted hidden">已恢復上一次搜尋結果。價格可能已變動，可按「搜尋好評前 6 名」重新查詢。</p><p class="muted">排名依公開平台彙總評價初步排序，並非實機測試。特價僅在搜尋結果提供可核對的原價、特價或折扣標示時顯示；活動仍以商店結帳頁為準。</p></section><footer>Worth It? V4.3 · 購買前請再次確認商家售價、規格、運費與保固</footer></main><script>
 (() => {
   'use strict';
   const WORKER = 'https://worth-it-search.bk6s9zw8rb.workers.dev';
-  const STORAGE = 'worthit-v41-search-state';
+  const STORAGE = 'worthit-v43-search-state';
   const TIMEOUT_MS = 30000;
   const $ = id => document.getElementById(id);
   const money = n => new Intl.NumberFormat('zh-TW', {style:'currency', currency:'TWD', maximumFractionDigits:0}).format(n);
@@ -55,13 +55,22 @@ button,.buy{border:0;background:linear-gradient(105deg,#a65b91,#9769aa 50%,#75a6
   function link(text, href, cls) {
     const url = safeUrl(href);
     if (!url) return null;
-    const a = txt('a', text, cls);
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    // Save position before iOS/Safari opens the merchant page.
-    a.addEventListener('click', remember);
-    return a;
+    const wrapper = txt('div', '', 'shop-links');
+    const copyBtn = txt('button', '複製購買連結（留在 Worth It?）', cls);
+    copyBtn.type='button';
+    copyBtn.addEventListener('click', async () => {
+      remember();
+      try { await navigator.clipboard.writeText(url); message('已複製購買連結！可以貼到 Safari 或購物 App，Worth It? 搜尋結果會保留。'); }
+      catch { const field=txt('input');field.value=url;field.readOnly=true;wrapper.append(field);field.focus();field.select();message('請長按已選取的網址，選擇「複製」。'); }
+    });
+    wrapper.append(copyBtn);
+    const open = txt('a', '仍要直接開啟購物網站 ↗', 'external-shop');
+    open.href=url;
+    open.target='_blank';
+    open.rel='noopener noreferrer';
+    open.addEventListener('click', remember);
+    wrapper.append(open);
+    return wrapper;
   }
   function show(data, restored=false) {
     const root = $('results');
@@ -69,7 +78,7 @@ button,.buy{border:0;background:linear-gradient(105deg,#a65b91,#9769aa 50%,#75a6
     root.classList.remove('muted');
     const products = Array.isArray(data?.products) ? data.products.slice(0, 6) : [];
     if (!products.length) {
-      root.append(txt('p', '這次沒有找到符合預算的商品。請調整商品名稱或預算再搜尋。', 'muted'));
+      root.append(txt('p', '目前沒有找到同時符合商品用途、預算、4 星以上及至少 5 則評論的商品；不會用不相關商品湊滿六名。可調整搜尋詞或預算。', 'muted'));
     }
     products.forEach((p,i) => {
       const art = txt('article', '', 'result');
@@ -102,7 +111,7 @@ button,.buy{border:0;background:linear-gradient(105deg,#a65b91,#9769aa 50%,#75a6
       if (p.offerCount > 1) art.append(txt('p', `搜尋來源提供 ${p.offerCount} 筆報價；請確認同款同規格`, 'muted'));
       const buy = link('查看購買／比價連結 ↗', p.link, 'buy');
       if (buy) art.append(buy);
-      art.append(txt('p','購物連結將嘗試另開頁面；返回 Worth It? 時，上次搜尋結果會保留。','muted'));
+      art.append(txt('p','建議先複製購買網址，避免 iPhone 自動跳到 Google App。若直接開啟外部網站，可能需要切回原來的 Safari 分頁。','muted'));
       root.append(art);
     });
     const checked = data.checkedAt && !Number.isNaN(Date.parse(data.checkedAt))
